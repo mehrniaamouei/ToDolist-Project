@@ -28,6 +28,22 @@ class ProjectManager:
         project = Project(name, description)
         self.projects.append(project)
         return project
+        
+    def edit_project(self, old_name: str, new_name: str, new_description: str):
+        project = next((p for p in self.projects if p.name == old_name), None)
+        if not project:
+            raise Exception(f"No project with '{old_name}' name was found")
+        if len(new_name) > 30:
+            raise ValueError("Name of projects cannot be more than 30 characters")
+        if len(new_description) > 150:
+            raise ValueError("Description cannot be more than 150 characters")
+        
+        if any(p.name == new_name and p != project for p in self.projects):
+            raise Exception("Choose another name.")
 
+        project.name = new_name
+        project.description = new_description
+        return project
+     
     def list_projects(self):
         return self.projects
