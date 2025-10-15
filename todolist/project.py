@@ -44,7 +44,16 @@ class ProjectManager:
         project.name = new_name
         project.description = new_description
         return project
-     
+
+    def delete_project(self, name: str):
+        project = next((p for p in self.projects if p.name == name), None)
+        if not project:
+            raise Exception("Project not found.")
+        
+        self.projects.remove(project)
+        print(f"Deleted '{name}'") 
+
+    
     def list_projects(self):
         return self.projects
     
