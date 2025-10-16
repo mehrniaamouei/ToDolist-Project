@@ -49,6 +49,8 @@ class ProjectManager:
             raise Exception("Project not found.")
         
         self.projects.remove(project)
+        if name in self.tasks:
+            del self.tasks[name]
         print(f"Deleted '{name}'") 
 
     
