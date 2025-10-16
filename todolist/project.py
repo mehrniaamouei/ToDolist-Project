@@ -73,3 +73,21 @@ class ProjectManager:
 
             return new_task
     
+
+    def change_task_status(self, project_name: str, task_title: str, new_status: str):
+        project = next((p for p in self.projects if p.name == project_name), None)
+        if not project:
+            raise Exception(f"No project found with the name '{project_name}'")
+
+        if new_status not in ["todo", "doing", "done"]:
+            raise ValueError("Status MUST be one of this folowings: todo, doing, done")
+
+        tasks_for_project = self.tasks.get(project_name, [])
+        task = next((t for t in tasks_for_project if t.title == task_title), None)
+        if not task:
+            raise Exception(f"No task found with the title '{task_title}' in project '{project_name}'")
+
+        task.status = new_status
+        return task
+    
+    
