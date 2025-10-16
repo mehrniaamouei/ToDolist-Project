@@ -1,8 +1,10 @@
 from dotenv import load_dotenv
 import os
+from todolist.task import Task
 
 load_dotenv()
 MAX_NUMBER_OF_PROJECT = int(os.getenv("MAX_NUMBER_OF_PROJECT", 5))
+MAX_NUMBER_OF_TASK = int(os.getenv("MAX_NUMBER_OF_TASK", 15))
 
 class Project:
     def __init__(self, name: str, description: str):
@@ -19,6 +21,7 @@ class Project:
 class ProjectManager:
     def __init__(self):
         self.projects = []
+        self.tasks = {}
 
     def create_project(self, name: str, description: str):
         if len(self.projects) >= MAX_NUMBER_OF_PROJECT:
@@ -56,4 +59,20 @@ class ProjectManager:
     
     def list_projects(self):
         return self.projects
+    
+
+    def add_task(self, project_name: str, title: str, description: str, status: str = "todo"):
+            project = next((p for p in self.projects if p.name == project_name), None)
+            if not project:
+                raise Exception(f"There is no '{project_name}'")
+
+            tasks_for_project = self.tasks.get(project_name, [])
+            if len(tasks_for_project) >= int(os.getenv("MAX_NUMBER_OF_TASK", 15)):
+                raise Exception("Tasks are out of bound")
+
+            new_task = Task(title, description, status)
+            tasks_for_project.append(new_task)
+            self.tasks[project_name] = tasks_for_project 
+
+            return new_task
     
