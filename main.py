@@ -12,7 +12,7 @@ def show_menu():
     print("6. Edit task")
     print("7. Delete task")
     print("0. Exit")
-    
+    print("Please add deadline in YYYY-MM-DD format")
 
 
 def main():
