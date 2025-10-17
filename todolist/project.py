@@ -58,6 +58,9 @@ class ProjectManager:
         return self.projects
     
 
+
+
+
     def add_task(self, project_name: str, title: str, description: str, status: str = "todo", deadline: str = None):
         project = next((p for p in self.projects if p.name == project_name), None)
         if not project:
@@ -91,3 +94,16 @@ class ProjectManager:
         task.status = new_status
         return task
         
+    def delete_task(self, project_name: str, task_title: str):
+        project = next((p for p in self.projects if p.name == project_name), None)
+        if not project:
+            raise Exception(f"No project found with the name '{project_name}'")
+
+        tasks_for_project = self.tasks.get(project_name, [])
+
+        task_to_delete = next((t for t in tasks_for_project if t.title == task_title), None)
+        if not task_to_delete:
+            raise Exception(f"No task found with the title '{task_title}' in project '{project_name}'")
+
+        tasks_for_project.remove(task_to_delete)
+        print(f"Task '{task_title}' deleted successfully from project '{project_name}'.")
