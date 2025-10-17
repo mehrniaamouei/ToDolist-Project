@@ -58,20 +58,21 @@ class ProjectManager:
         return self.projects
     
 
-    def add_task(self, project_name: str, title: str, description: str, status: str = "todo"):
-            project = next((p for p in self.projects if p.name == project_name), None)
-            if not project:
-                raise Exception(f"There is no '{project_name}'")
+    def add_task(self, project_name: str, title: str, description: str, status: str = "todo", deadline: str = None):
+        project = next((p for p in self.projects if p.name == project_name), None)
+        if not project:
+            raise Exception(f"There is no '{project_name}'")
 
-            tasks_for_project = self.tasks.get(project_name, [])
-            if len(tasks_for_project) >= config.MAX_NUMBER_OF_TASK:
-                raise Exception("Tasks are out of bound")
+        tasks_for_project = self.tasks.get(project_name, [])
+        if len(tasks_for_project) >= config.MAX_NUMBER_OF_TASK:
+            raise Exception("Tasks are out of bound")
 
-            new_task = Task(title, description, status)
-            tasks_for_project.append(new_task)
-            self.tasks[project_name] = tasks_for_project 
+        new_task = Task(title, description, status, deadline)
+        tasks_for_project.append(new_task)
+        self.tasks[project_name] = tasks_for_project 
 
-            return new_task
+        return new_task
+
     
 
     def change_task_status(self, project_name: str, task_title: str, new_status: str):
@@ -89,5 +90,4 @@ class ProjectManager:
 
         task.status = new_status
         return task
-    
-    
+        
