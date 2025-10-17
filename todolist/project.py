@@ -78,6 +78,9 @@ class ProjectManager:
     def add_task(self, project_name: str, title: str, description: str, status: str = "todo", deadline: str = None):
         self._get_project_by_name(project_name)
 
+        if not status: 
+            status = "todo"
+
         tasks_for_project = self.tasks.get(project_name, [])
         if len(tasks_for_project) >= config.MAX_NUMBER_OF_TASK:
             raise Exception("Tasks are out of bound")
