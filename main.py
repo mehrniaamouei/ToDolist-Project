@@ -1,3 +1,5 @@
+#poetry run python main.py
+
 from todolist.project import ProjectManager
 
 def show_menu():
@@ -13,9 +15,9 @@ def show_menu():
 
 def main():
     manager = ProjectManager()
-
+    show_menu()
     while True:
-        show_menu()
+        
         choice = input("Select an option: ")
 
         if choice == "1":
@@ -42,7 +44,7 @@ def main():
             title = input("Task title: ")
             desc = input("Task description: ")
             status = input("Task status (todo/doing/done): ")
-            deadline = input("Deadline ")
+            deadline = input("Deadline: ")
             try:
                 manager.add_task(project, title, desc, status, deadline if deadline else None)
                 print("\nTask added.")
@@ -58,8 +60,8 @@ def main():
             title = input("Task title to edit: ")
             new_title = input("New title (leave empty to skip): ")
             new_desc = input("New description (leave empty to skip): ")
-            new_status = input("New status (todo/doing/done or leave empty): ")
-            new_deadline = input("New deadline ")
+            new_status = input("New status (todo/doing/done): ")
+            new_deadline = input("New deadline: ")
             manager.edit_task(project, title, new_title or None, new_desc or None, new_status or None, new_deadline)
 
         elif choice == "7":

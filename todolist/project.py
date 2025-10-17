@@ -20,6 +20,12 @@ class ProjectManager:
         self.projects = []
         self.tasks = {}
 
+    def _get_project_by_name(self, project_name: str):
+        project = next((p for p in self.projects if p.name == project_name), None)
+        if not project:
+            raise Exception(f"No project found with the name '{project_name}'")
+        return project
+
     def create_project(self, name: str, description: str):
         if len(self.projects) >= config.MAX_NUMBER_OF_PROJECT:
             raise Exception("Number of projects out of range.")
@@ -70,9 +76,7 @@ class ProjectManager:
 
 
     def add_task(self, project_name: str, title: str, description: str, status: str = "todo", deadline: str = None):
-        project = next((p for p in self.projects if p.name == project_name), None)
-        if not project:
-            raise Exception(f"There is no '{project_name}'")
+        self._get_project_by_name(project_name)
 
         tasks_for_project = self.tasks.get(project_name, [])
         if len(tasks_for_project) >= config.MAX_NUMBER_OF_TASK:
@@ -85,9 +89,7 @@ class ProjectManager:
         return new_task
 
     def change_task_status(self, project_name: str, task_title: str, new_status: str):
-        project = next((p for p in self.projects if p.name == project_name), None)
-        if not project:
-            raise Exception(f"No project found with the name '{project_name}'")
+        self._get_project_by_name(project_name)
 
         if new_status not in ["todo", "doing", "done"]:
             raise ValueError("Status MUST be one of this folowings: todo, doing, done")
@@ -101,9 +103,7 @@ class ProjectManager:
         return task
         
     def delete_task(self, project_name: str, task_title: str):
-        project = next((p for p in self.projects if p.name == project_name), None)
-        if not project:
-            raise Exception(f"No project found with the name '{project_name}'")
+        self._get_project_by_name(project_name)
 
         tasks_for_project = self.tasks.get(project_name, [])
 
@@ -116,9 +116,7 @@ class ProjectManager:
 
     def edit_task(self, project_name: str, task_title: str, new_title: str = None,
                   new_description: str = None, new_status: str = None, new_deadline: str = None):
-        project = next((p for p in self.projects if p.name == project_name), None)
-        if not project:
-            raise Exception(f"No project found with the name '{project_name}'")
+        self._get_project_by_name(project_name)
 
         tasks_for_project = self.tasks.get(project_name, [])
         task = next((t for t in tasks_for_project if t.title == task_title), None)
