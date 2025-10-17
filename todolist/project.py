@@ -69,8 +69,6 @@ class ProjectManager:
     
 
 
-
-
     def add_task(self, project_name: str, title: str, description: str, status: str = "todo", deadline: str = None):
         project = next((p for p in self.projects if p.name == project_name), None)
         if not project:
@@ -85,8 +83,6 @@ class ProjectManager:
         self.tasks[project_name] = tasks_for_project 
 
         return new_task
-
-    
 
     def change_task_status(self, project_name: str, task_title: str, new_status: str):
         project = next((p for p in self.projects if p.name == project_name), None)
@@ -158,3 +154,20 @@ class ProjectManager:
 
         print(f"Task '{task_title}' in project '{project_name}' was successfully edited.")
         return task 
+
+    def list_tasks(self, project_name: str):
+        project = next((p for p in self.projects if p.name == project_name), None)
+        if not project:
+            print(f"No project found with the name '{project_name}'.")
+            return []
+
+        tasks_for_project = self.tasks.get(project_name, [])
+        if not tasks_for_project:
+            print(f"No tasks found for project '{project_name}'.")
+            return []
+
+        for idx, task in enumerate(tasks_for_project, start=1):
+            deadline_str = task.deadline.strftime("%Y-%m-%d") if task.deadline else "No deadline"
+            print(f"{idx}. Title: {task.title}, Status: {task.status}, Deadline: {deadline_str}")
+
+        return tasks_for_project
