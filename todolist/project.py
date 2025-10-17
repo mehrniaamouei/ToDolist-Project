@@ -1,5 +1,7 @@
 from todolist.task import Task
 import config
+from datetime import datetime
+
 
 class Project:
     def __init__(self, name: str, description: str):
@@ -55,6 +57,14 @@ class ProjectManager:
 
     
     def list_projects(self):
+        if not self.projects:
+            print("No project existed")
+            return []
+
+        print("Projects list")
+        for idx, project in enumerate(self.projects, start=1):
+            print(f"{idx}. Name: {project.name} | Description: {project.description}")
+
         return self.projects
     
 
@@ -107,3 +117,44 @@ class ProjectManager:
 
         tasks_for_project.remove(task_to_delete)
         print(f"Task '{task_title}' deleted successfully from project '{project_name}'.")
+
+    def edit_task(self, project_name: str, task_title: str, new_title: str = None,
+                  new_description: str = None, new_status: str = None, new_deadline: str = None):
+        project = next((p for p in self.projects if p.name == project_name), None)
+        if not project:
+            raise Exception(f"No project found with the name '{project_name}'")
+
+        tasks_for_project = self.tasks.get(project_name, [])
+        task = next((t for t in tasks_for_project if t.title == task_title), None)
+        if not task:
+            raise Exception(f"No task found with the title '{task_title}' in project '{project_name}'")
+
+        if new_title is not None:
+            if len(new_title) > 30:
+                raise ValueError("Title cannot be more than 30 characters.")
+            task.title = new_title
+
+        if new_description is not None:
+            if len(new_description) > 150:
+                raise ValueError("Description cannot be more than 150 characters.")
+            task.description = new_description
+
+        if new_status is not None:
+            if new_status not in ["todo", "doing", "done"]:
+                raise ValueError("Status MUST be one of: todo, doing, done")
+            task.status = new_status
+
+        if new_deadline is not None:
+            if new_deadline == "":
+                task.deadline = None
+            else:
+                try:
+                    parsed_date = datetime.strptime(new_deadline, "%Y-%m-%d")
+                except ValueError:
+                    raise ValueError("Deadline must be in the format YYYY-MM-DD.")
+                if parsed_date.date() < datetime.now().date():
+                    raise ValueError("Deadline cannot be in the past.")
+                task.deadline = parsed_date.date()
+
+        print(f"Task '{task_title}' in project '{project_name}' was successfully edited.")
+        return task 
