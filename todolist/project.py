@@ -88,7 +88,7 @@ class ProjectManager:
         if len(tasks_for_project) >= self.max_tasks:
             raise Exception("Tasks are out of bound")
 
-        new_task = self.Task(title, description, status, deadline) 
+        new_task = self.Task(title, description, status, deadline) #important
         tasks_for_project.append(new_task)
         self.tasks[project_name] = tasks_for_project 
 
