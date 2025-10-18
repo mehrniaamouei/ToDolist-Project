@@ -16,7 +16,10 @@ class Project:
         return f"<<Project: {self.name}>>"
 
 class ProjectManager:
-    def __init__(self) -> None:
+    def __init__(self, task_class, max_projects: int, max_tasks: int) -> None:
+        self.Task = task_class
+        self.max_projects = max_projects
+        self.max_tasks = max_tasks
         self.projects = []
         self.tasks = {}
 
@@ -27,7 +30,7 @@ class ProjectManager:
         return project
 
     def create_project(self, name: str, description: str) -> Project:
-        if len(self.projects) >= config.MAX_NUMBER_OF_PROJECT:
+        if len(self.projects) >= self.max_projects:
             raise Exception("Number of projects out of range.")
         if any(p.name == name for p in self.projects):
             raise Exception("There is a project with this name.")
@@ -82,10 +85,10 @@ class ProjectManager:
             status = "todo"
 
         tasks_for_project = self.tasks.get(project_name, [])
-        if len(tasks_for_project) >= config.MAX_NUMBER_OF_TASK:
+        if len(tasks_for_project) >= self.max_tasks:
             raise Exception("Tasks are out of bound")
 
-        new_task = Task(title, description, status, deadline)
+        new_task = self.Task(title, description, status, deadline) 
         tasks_for_project.append(new_task)
         self.tasks[project_name] = tasks_for_project 
 
@@ -169,6 +172,6 @@ class ProjectManager:
 
         for idx, task in enumerate(tasks_for_project, start=1):
             deadline_str = task.deadline.strftime("%Y-%m-%d") if task.deadline else "No deadline"
-            print(f"{idx}. Title: {task.title}, Status: {task.status}, Deadline: {deadline_str}")
+            print(f"{idx}. Title: {task.title}, Description: {task.description}, Status: {task.status}, Deadline: {deadline_str}")
 
         return tasks_for_project

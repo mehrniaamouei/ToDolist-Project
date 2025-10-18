@@ -1,6 +1,9 @@
 #poetry run python main.py
 
+from todolist.task import Task
 from todolist.project import ProjectManager
+import config
+
 
 def show_menu():
     print("\n--- ToDo List ---")
@@ -16,7 +19,7 @@ def show_menu():
 
 
 def main():
-    manager = ProjectManager()
+    manager = ProjectManager(Task, config.MAX_NUMBER_OF_PROJECT, config.MAX_NUMBER_OF_TASK)
     show_menu()
     while True:
         
