@@ -4,7 +4,7 @@ from datetime import datetime
 
 
 class Project:
-    def __init__(self, name: str, description: str):
+    def __init__(self, name: str, description: str) -> None:
         if len(name) > 30:
             raise ValueError("Name of projects cannot be more than 30 characters.")
         if len(description) > 150:
@@ -12,21 +12,21 @@ class Project:
         self.name = name
         self.description = description
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<<Project: {self.name}>>"
 
 class ProjectManager:
-    def __init__(self):
+    def __init__(self) -> None:
         self.projects = []
         self.tasks = {}
 
-    def _get_project_by_name(self, project_name: str):
+    def _get_project_by_name(self, project_name: str) -> Project:
         project = next((p for p in self.projects if p.name == project_name), None)
         if not project:
             raise Exception(f"No project found with the name '{project_name}'")
         return project
 
-    def create_project(self, name: str, description: str):
+    def create_project(self, name: str, description: str) -> Project:
         if len(self.projects) >= config.MAX_NUMBER_OF_PROJECT:
             raise Exception("Number of projects out of range.")
         if any(p.name == name for p in self.projects):
@@ -35,7 +35,7 @@ class ProjectManager:
         self.projects.append(project)
         return project
         
-    def edit_project(self, old_name: str, new_name: str, new_description: str):
+    def edit_project(self, old_name: str, new_name: str, new_description: str) -> Project:
         project = next((p for p in self.projects if p.name == old_name), None)
         if not project:
             raise Exception(f"No project with '{old_name}' name was found.")
@@ -51,7 +51,7 @@ class ProjectManager:
         project.description = new_description
         return project
 
-    def delete_project(self, name: str):
+    def delete_project(self, name: str) -> None:
         project = next((p for p in self.projects if p.name == name), None)
         if not project:
             raise Exception("Project not found.")
@@ -62,7 +62,7 @@ class ProjectManager:
         print(f"Deleted '{name}'") 
 
     
-    def list_projects(self):
+    def list_projects(self) -> list[Project]:
         if not self.projects:
             print("No project existed")
             return []
@@ -75,7 +75,7 @@ class ProjectManager:
     
 
 
-    def add_task(self, project_name: str, title: str, description: str, status: str = "todo", deadline: str = None):
+    def add_task(self, project_name: str, title: str, description: str, status: str = "todo", deadline: str = None) -> Task:
         self._get_project_by_name(project_name)
 
         if not status: 
@@ -91,7 +91,7 @@ class ProjectManager:
 
         return new_task
 
-    def change_task_status(self, project_name: str, task_title: str, new_status: str):
+    def change_task_status(self, project_name: str, task_title: str, new_status: str) -> Task:
         self._get_project_by_name(project_name)
 
         if new_status not in ["todo", "doing", "done"]:
@@ -105,7 +105,7 @@ class ProjectManager:
         task.status = new_status
         return task
         
-    def delete_task(self, project_name: str, task_title: str):
+    def delete_task(self, project_name: str, task_title: str) -> None:
         self._get_project_by_name(project_name)
 
         tasks_for_project = self.tasks.get(project_name, [])
@@ -118,7 +118,7 @@ class ProjectManager:
         print(f"Task '{task_title}' deleted successfully from project '{project_name}'.")
 
     def edit_task(self, project_name: str, task_title: str, new_title: str = None,
-                  new_description: str = None, new_status: str = None, new_deadline: str = None):
+                  new_description: str = None, new_status: str = None, new_deadline: str = None) -> Task:
         self._get_project_by_name(project_name)
 
         tasks_for_project = self.tasks.get(project_name, [])
@@ -156,7 +156,7 @@ class ProjectManager:
         print(f"Task '{task_title}' in project '{project_name}' was successfully edited.")
         return task 
 
-    def list_tasks(self, project_name: str):
+    def list_tasks(self, project_name: str) -> list[Task]:
         project = next((p for p in self.projects if p.name == project_name), None)
         if not project:
             print(f"No project found with the name '{project_name}'.")
