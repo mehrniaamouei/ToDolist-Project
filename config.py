@@ -1,3 +1,4 @@
+#poetry run python -m app.main
 from dotenv import load_dotenv
 import os
 
