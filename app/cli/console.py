@@ -1,3 +1,4 @@
+import click
 from ..db.session import SessionLocal
 from ..repositories.sqlalchemy_project_repository import SQLAlchemyProjectRepository
 from ..repositories.sqlalchemy_task_repository import SQLAlchemyTaskRepository
@@ -6,7 +7,18 @@ from ..services.task_service import TaskService
 from ..models.project import Project
 from ..models.task import Task
 from datetime import datetime
+from ..commands.scheduler import autoclose_overdue_tasks
 
+@click.group()
+def cli():
+    pass
+
+@cli.command(name="tasks:autoclose-overdue")
+def autoclose_overdue_command():
+    autoclose_overdue_tasks()
+    click.echo("All overdue tasks have been closed.")
+
+@cli.command(name="interactive")
 def run_cli():
     session = SessionLocal()
     project_repo = SQLAlchemyProjectRepository(session)
@@ -44,7 +56,7 @@ def run_cli():
         elif choice == "2":
             projects = project_service.list_projects()
             if not projects:
-                print("No project existed")
+                print("No projects exist")
             else:
                 for idx, p in enumerate(projects, start=1):
                     print(f"{idx}. Name: {p.name}")
