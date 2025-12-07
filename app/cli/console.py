@@ -1,17 +1,19 @@
-from ..models.project import Project
-from ..models.task import Task
-from ..repositories.project_repository import ProjectRepository
-from ..repositories.task_repository import TaskRepository
+from ..db.session import SessionLocal
+from ..repositories.sqlalchemy_project_repository import SQLAlchemyProjectRepository
+from ..repositories.sqlalchemy_task_repository import SQLAlchemyTaskRepository
 from ..services.project_service import ProjectService
 from ..services.task_service import TaskService
+from ..models.project import Project
+from ..models.task import Task
+from datetime import datetime
 
 def run_cli():
-    project_repo = ProjectRepository()
-    task_repo = TaskRepository()
-    
+    session = SessionLocal()
+    project_repo = SQLAlchemyProjectRepository(session)
+    task_repo = SQLAlchemyTaskRepository(session)
     project_service = ProjectService(project_repo)
     task_service = TaskService(task_repo)
-    
+
     def show_menu():
         print("\n--- ToDo List ---")
         print("1. Create project")
@@ -23,9 +25,9 @@ def run_cli():
         print("7. Delete task")
         print("0. Exit")
         print("Please add deadline in YYYY-MM-DD format")
-    
+
     show_menu()
-    
+
     while True:
         choice = input("Select an option: ")
 
@@ -33,18 +35,17 @@ def run_cli():
             name = input("Project name: ")
             desc = input("Project description: ")
             try:
-                project = Project(id=project_repo.get_next_id(), name=name, tasks=[])
+                project = Project(id=None, name=name, description=desc)
                 project_service.create_project(project)
-                print(f"\nProject created: {project}")
+                print(f"Project created: {project.name}")
             except Exception as e:
-                print(f"\nError: {e}")
+                print(f"Error: {e}")
 
         elif choice == "2":
             projects = project_service.list_projects()
             if not projects:
                 print("No project existed")
             else:
-                print("Projects list")
                 for idx, p in enumerate(projects, start=1):
                     print(f"{idx}. Name: {p.name}")
 
@@ -66,12 +67,21 @@ def run_cli():
             title = input("Task title: ")
             desc = input("Task description: ")
             status = input("Task status (todo/doing/done): ") or "todo"
-            deadline = input("Deadline: ") or None
+            deadline_str = input("Deadline (YYYY-MM-DD) or leave empty: ")
+            deadline = datetime.strptime(deadline_str, "%Y-%m-%d") if deadline_str else None
             try:
-                task = Task(id=len(task_repo.list())+1, title=title, description=desc, status=status, deadline=deadline)
+                task = Task(
+                    id=None,
+                    project_id=project.id,
+                    title=title,
+                    description=desc,
+                    status=status,
+                    due_date=deadline,
+                    completed=False,
+                    created_at=datetime.utcnow()
+                )
                 task_service.create_task(task)
-                project.tasks.append(task.id)
-                print("\nTask added.")
+                print("Task added.")
             except Exception as e:
                 print(f"Error: {e}")
 
@@ -81,13 +91,10 @@ def run_cli():
             if not project:
                 print(f"No project found with name '{project_name}'")
                 continue
-            tasks = [t for t in task_service.list_tasks() if t.id in project.tasks]
-            if not tasks:
-                print("No tasks found for this project.")
-            else:
-                for idx, t in enumerate(tasks, start=1):
-                    deadline_str = t.deadline if t.deadline else "No deadline"
-                    print(f"{idx}. Title: {t.title}, Description: {t.description}, Status: {t.status}, Deadline: {deadline_str}")
+            tasks = [t for t in task_service.list_tasks() if t.project_id == project.id]
+            for idx, t in enumerate(tasks, start=1):
+                deadline_str = t.due_date.strftime("%Y-%m-%d") if t.due_date else "No deadline"
+                print(f"{idx}. Title: {t.title}, Description: {t.description}, Status: {t.status}, Deadline: {deadline_str}")
 
         elif choice == "6":
             project_name = input("Project name: ")
@@ -95,20 +102,29 @@ def run_cli():
             if not project:
                 print(f"No project found with name '{project_name}'")
                 continue
-            task_title = input("Task title to edit: ")
-            task = next((t for t in task_service.list_tasks() if t.id in project.tasks and t.title == task_title), None)
-            if not task:
-                print("Task not found.")
+            tasks = [t for t in task_service.list_tasks() if t.project_id == project.id]
+            if not tasks:
+                print("No tasks to edit.")
                 continue
-            new_title = input("New title (leave empty to skip): ") or task.title
-            new_desc = input("New description (leave empty to skip): ") or task.description
-            new_status = input("New status (todo/doing/done, leave empty to skip): ") or task.status
-            new_deadline = input("New deadline (leave empty to skip): ") or task.deadline
+            for idx, t in enumerate(tasks, start=1):
+                deadline_str = t.due_date.strftime("%Y-%m-%d") if t.due_date else "No deadline"
+                print(f"{idx}. Title: {t.title}, Status: {t.status}, Deadline: {deadline_str}")
+            task_idx = int(input("Select task number to edit: ")) - 1
+            if task_idx < 0 or task_idx >= len(tasks):
+                print("Invalid task number.")
+                continue
+            task = tasks[task_idx]
+            new_title = input(f"New title (leave empty to keep '{task.title}'): ") or task.title
+            new_desc = input(f"New description (leave empty to keep '{task.description}'): ") or task.description
+            new_status = input(f"New status (todo/doing/done, leave empty to keep '{task.status}'): ") or task.status
+            new_deadline_str = input(f"New deadline (YYYY-MM-DD, leave empty to keep '{task.due_date}'): ")
+            new_deadline = datetime.strptime(new_deadline_str, "%Y-%m-%d") if new_deadline_str else task.due_date
             task.title = new_title
             task.description = new_desc
             task.status = new_status
-            task.deadline = new_deadline
-            print(f"Task '{task_title}' updated successfully.")
+            task.due_date = new_deadline
+            task_service.create_task(task)
+            print("Task updated successfully.")
 
         elif choice == "7":
             project_name = input("Project name: ")
@@ -116,18 +132,20 @@ def run_cli():
             if not project:
                 print(f"No project found with name '{project_name}'")
                 continue
-            task_title = input("Task title to delete: ")
-            task = next((t for t in task_service.list_tasks() if t.id in project.tasks and t.title == task_title), None)
-            if not task:
-                print("Task not found.")
-            else:
-                project.tasks.remove(task.id)
-                task_service.delete_task(task)
-                print(f"Task '{task_title}' deleted successfully.")
+            tasks = [t for t in task_service.list_tasks() if t.project_id == project.id]
+            if not tasks:
+                print("No tasks to delete.")
+                continue
+            for idx, t in enumerate(tasks, start=1):
+                print(f"{idx}. {t.title}")
+            task_idx = int(input("Select task number to delete: ")) - 1
+            if task_idx < 0 or task_idx >= len(tasks):
+                print("Invalid task number.")
+                continue
+            task = tasks[task_idx]
+            task_service.delete_task(task)
+            print(f"Task '{task.title}' deleted successfully.")
 
         elif choice == "0":
-            print("Have a nice time")
+            print("Goodbye")
             break
-
-        else:
-            print("Invalid choice.")

@@ -1,11 +1,14 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional
 
 @dataclass
 class Task:
-    id: int
-    title: str
-    description: str
+    id: Optional[int] = None
+    project_id: Optional[int] = None
+    title: str = ""
+    description: str = ""
     status: str = "todo"
-    deadline: Optional[datetime.date] = None
+    due_date: Optional[datetime] = None
+    completed: bool = False      
+    created_at: Optional[datetime] = None

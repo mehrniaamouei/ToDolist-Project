@@ -1,8 +1,8 @@
-from ..repositories.task_repository import TaskRepository
+from ..repositories.sqlalchemy_task_repository import SQLAlchemyTaskRepository
 from ..models.task import Task
 
 class TaskService:
-    def __init__(self, repo: TaskRepository):
+    def __init__(self, repo: SQLAlchemyTaskRepository):
         self.repo = repo
 
     def create_task(self, task: Task):

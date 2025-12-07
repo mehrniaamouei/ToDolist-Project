@@ -1,8 +1,8 @@
-from ..repositories.project_repository import ProjectRepository
+from ..repositories.sqlalchemy_project_repository import SQLAlchemyProjectRepository
 from ..models.project import Project
 
 class ProjectService:
-    def __init__(self, repo: ProjectRepository):
+    def __init__(self, repo: SQLAlchemyProjectRepository):
         self.repo = repo
 
     def create_project(self, project: Project):

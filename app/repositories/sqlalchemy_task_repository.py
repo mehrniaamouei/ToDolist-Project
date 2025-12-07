@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from ..models.sqlalchemy_task import Task as DBTask
 from ..models.task import Task
+from datetime import datetime
 
 class SQLAlchemyTaskRepository:
     def __init__(self, session: Session):
@@ -13,8 +14,10 @@ class SQLAlchemyTaskRepository:
             project_id=task.project_id,
             title=task.title,
             description=task.description,
+            status=task.status,
             due_date=task.due_date,
-            completed=task.completed
+            completed=task.completed,
+            created_at=task.created_at or datetime.utcnow()
         )
         self.session.add(db_task)
         self.session.commit()
