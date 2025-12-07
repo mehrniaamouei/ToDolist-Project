@@ -123,8 +123,12 @@ def run_cli():
             task.description = new_desc
             task.status = new_status
             task.due_date = new_deadline
-            task_service.create_task(task)
-            print("Task updated successfully.")
+            try:
+                session.commit()
+                print("Task updated successfully.")
+            except Exception as e:
+                session.rollback()
+                print(f"Error updating task: {e}")
 
         elif choice == "7":
             project_name = input("Project name: ")
