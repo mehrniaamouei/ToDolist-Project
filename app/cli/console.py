@@ -20,6 +20,10 @@ def autoclose_overdue_command():
 
 @cli.command(name="interactive")
 def run_cli():
+    # پیام هشدار که به کاربران اعلام می‌کنه CLI به زودی حذف می‌شه و بهتره از API استفاده کنند
+    click.echo("⚠️ CLI is deprecated and will be removed in the next release. Please use the FastAPI HTTP interface instead.")
+    click.echo("For full functionality, visit: http://127.0.0.1:8000/docs")
+
     session = SessionLocal()
     project_repo = SQLAlchemyProjectRepository(session)
     task_repo = SQLAlchemyTaskRepository(session)
