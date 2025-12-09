@@ -25,3 +25,10 @@ To prevent overload, the **maximum number of projects** and **tasks per project*
 - Assign deadlines to tasks ⏰  
 - View a list of all projects and their tasks 📋  
 - Configurable limits via `.env` file ⚡  
+
+
+## ⚠️ Deprecation Notice
+
+The Command Line Interface (CLI) is no longer a core feature of this project and its use is discouraged.  
+All new features and developments will only be available through the API.  
+Please refer to the [API endpoints](./app/api/routers.py) for usage and future development.
