@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
-from app.models.project import Project
 from app.api.controller_schemas.requests.project_request_schema import ProjectCreateRequest, ProjectResponse
 from app.services.project_service import ProjectService
 from app.repositories.sqlalchemy_project_repository import SQLAlchemyProjectRepository
@@ -15,8 +14,7 @@ def get_project_service(db: Session = Depends(get_db)):
 
 @router.post("/", response_model=ProjectResponse, status_code=201)
 def create_project(project: ProjectCreateRequest, service: ProjectService = Depends(get_project_service)):
-    project_data = Project(name=project.name, description=project.description)
-    created_project = service.create_project(project_data)
+    created_project = service.create_project(project.name, project.description)
     return created_project
 
 @router.get("/", response_model=List[ProjectResponse])
@@ -28,9 +26,7 @@ def update_project(project_id: int, project: ProjectCreateRequest, service: Proj
     existing = service.get_by_id(project_id)
     if not existing:
         raise HTTPException(status_code=404, detail="Project not found")
-    existing.name = project.name
-    existing.description = project.description
-    updated_project = service.update_project(existing)
+    updated_project = service.update_project(project_id, project.name, project.description)
     return updated_project
 
 @router.delete("/{project_id}", status_code=204)
@@ -38,5 +34,5 @@ def delete_project(project_id: int, service: ProjectService = Depends(get_projec
     existing = service.get_by_id(project_id)
     if not existing:
         raise HTTPException(status_code=404, detail="Project not found")
-    service.delete_project(existing)
-    return {"detail": "Project deleted successfully"}
+    service.delete_project(project_id)
+    return None

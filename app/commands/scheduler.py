@@ -30,7 +30,7 @@ def autoclose_overdue_tasks():
         db.close()
 
 def run_scheduler():
-    schedule.every(15).minutes.do(autoclose_overdue_tasks)
+    schedule.every(2).minutes.do(autoclose_overdue_tasks)
     print("Scheduler is running... Press Ctrl+C to stop")
 
     try:
